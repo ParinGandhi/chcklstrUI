@@ -1,0 +1,15 @@
+<div class="container">
+
+    <div class="row topMargin50">
+        <ul class="testing magictime" ng-repeat="list in vm.chcklst track by $index">
+            <li>{{list}}</li>
+        </ul>
+        <button class="btn btn-default" ng-click="vm.openCreateModal()">
+        <span><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add a chklst</span>
+    </button>
+
+        <!--<div class="testing magictime" id="testing" ng-repeat="list in vm.chcklst">
+        <p>{{list}}</p>
+    </div>-->
+    </div>
+</div>
