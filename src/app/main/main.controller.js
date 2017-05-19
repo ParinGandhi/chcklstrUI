@@ -24,7 +24,7 @@
 
                 createNewChklstModalInstance.result.then(function (chcklstName) {
                     vm.newList.name = chcklstName;
-                    vm.newList.id = 0;
+                    //vm.newList.id = 0;
                     $log.debug(vm.newList);
                     $http({
                         method: 'POST',
@@ -54,5 +54,27 @@ vanishOut.removeClass('vanishIn').addClass('vanishIn');*/
             }
 
             getAllChecklists();
+
+
+            vm.showItems = function (index) {
+                var activeList;
+                if (angular.isDefined(vm.currentIndex)) {
+                    activeList = angular.element(document.getElementById(vm.currentIndex.id));
+                    activeList.removeClass('activeList');
+                }
+                activeList = angular.element(document.getElementById(index.id));
+                activeList.addClass('activeList');
+                vm.currentIndex = index;
+
+                vm.chcklst[index.id].items = [];
+                vm.chcklst[index.id].items.push('Milk');
+                vm.chcklst[index.id].items.push('Butter');
+                vm.chcklst[index.id].items.push('Sugar');
+                vm.chcklst[index.id].items.push('Bread');
+                vm.chcklst[index.id].items.push('Eggs');
+
+
+            };
+
         });
 })();

@@ -1,10 +1,10 @@
 <div class="container">
 
     <div class="row topMargin50">
-        <ul class="testing magictime" ng-repeat="list in vm.chcklst track by $index">
+        <ul class="testing magictime" ng-repeat="list in vm.chcklst track by list.id" ng-click="vm.showItems(list)" id="{{list.id}}">
             <li>{{list.name}}</li>
         </ul>
-        <button class="btn btn-default" ng-click="vm.openCreateModal()">
+        <button ng-click="vm.openCreateModal()">
         <span><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add a chklst</span>
             </button>
 
