@@ -1,15 +1,33 @@
 <div class="container">
 
     <div class="row topMargin50">
-        <ul class="testing magictime" ng-repeat="list in vm.chcklst track by list.id" ng-click="vm.showItems(list)" id="{{list.id}}">
-            <li>{{list.name}}</li>
-        </ul>
-        <button ng-click="vm.openCreateModal()">
-        <span><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add a chklst</span>
-            </button>
-
-        <!--<div class="testing magictime" id="testing" ng-repeat="list in vm.chcklst">
-        <p>{{list}}</p>
-    </div>-->
+        <div class="col-md-2">
+            <ul class="testing magictime" ng-repeat="list in vm.chcklst track by list.id" ng-click="vm.showItems(list)" id="{{list.id}}">
+                <li>{{list.name}}</li>
+            </ul>
+            <input type="text" placeholder="Add a chcklst..." class="addList" ng-model="vm.newChcklst.name" ng-keyup="vm.pressEnter($event)">
+            <!--<button ng-click="vm.openCreateModal()">
+                <span><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add a chklst</span>
+            </button>-->
+        </div>
+        <div class="col-md-8 col-md-offset-1" ng-show="vm.showItemsTable">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" ng-hide="vm.showEditTask">{{vm.currentIndex.name}}
+                        <i class="fa fa-pencil" tooltip="Edit task name" ng-click="vm.editTask()"></i>&nbsp;
+                        <i class="fa fa-trash-o" tooltip="Delete task list" ng-click="vm.deleteTaskList(vm.currentIndex.id)"></i>
+                    </h3>
+                    <h3 class="panel-title" ng-show="vm.showEditTask"><input type="text" ng-model="vm.tempTaskList">&nbsp;
+                        <i class="fa fa-floppy-o" tooltip="Save changes" ng-click="vm.updateTaskListName(vm.currentIndex)"></i> &nbsp;
+                        <i class="fa fa-times" tooltip="Cancel changes" ng-click="vm.showEditTask=false"></i>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <ul ng-repeat="item in vm.currentIndex.items">
+                        <li>{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

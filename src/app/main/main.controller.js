@@ -3,51 +3,23 @@
 
     angular
         .module('chcklstr')
-        .controller('MainController', function MainController(toastr, $modal, $http, $log) {
+        .controller('MainController', function MainController(toastr, $modal, $http, $log, URLFactory) {
             var vm = this;
             vm.chcklst = [];
-            vm.newList = {};
+            vm.newChcklst = {};
+            vm.showItemsTable = false;
+            vm.showEditTask = false;
 
-            /*vm.testMagic = function () {
-    var vanishOut = angular.element(document.querySelector('#testing'));
-    vanishOut.addClass('vanishOut');
-};*/
 
-            vm.openCreateModal = function () {
-                var createNewChklstModalInstance = $modal.open({
-                    templateUrl: 'app/create_chklst/create_chklst.html',
-                    controller: 'CreateListController',
-                    controllerAs: 'vm',
-                    animation: false,
-                    size: 'lg'
-                });
-
-                createNewChklstModalInstance.result.then(function (chcklstName) {
-                    vm.newList.name = chcklstName;
-                    //vm.newList.id = 0;
-                    $log.debug(vm.newList);
-                    $http({
-                        method: 'POST',
-                        url: 'http://localhost:8080/checklists/new/',
-                        data: vm.newList
-                    }).then(function (response) {
-                        $log.debug(response);
-                        getAllChecklists();
-                    }, function errorCallback(response) {
-                        $log.debug(response);
-                    });
-                    vm.chcklst.push(chcklstName);
-                    /*var vanishOut = angular.element(document.querySelector('.testing'));
-vanishOut.removeClass('vanishIn').addClass('vanishIn');*/
-                }, function () {
-
-                });
-            };
-
+            /**
+             * This function will retrieve all the checklists from the database
+             */
             function getAllChecklists() {
-                $http.get('http://localhost:8080/checklists/')
+                URLFactory.getTaskLists()
                     .then(function (response) {
-                        vm.chcklst = response.data;
+                        vm.chcklst = response;
+                        $log.debug("Retrieved tasklists from the database:");
+                        $log.debug(vm.chcklst);
                     }, function (response) {
                         $log.debug(response);
                     });
@@ -56,6 +28,9 @@ vanishOut.removeClass('vanishIn').addClass('vanishIn');*/
             getAllChecklists();
 
 
+            /**
+             * This function will show the items associated to the selected task list.
+             */
             vm.showItems = function (index) {
                 var activeList;
                 if (angular.isDefined(vm.currentIndex)) {
@@ -64,17 +39,77 @@ vanishOut.removeClass('vanishIn').addClass('vanishIn');*/
                 }
                 activeList = angular.element(document.getElementById(index.id));
                 activeList.addClass('activeList');
-                vm.currentIndex = index;
-
-                vm.chcklst[index.id].items = [];
-                vm.chcklst[index.id].items.push('Milk');
-                vm.chcklst[index.id].items.push('Butter');
-                vm.chcklst[index.id].items.push('Sugar');
-                vm.chcklst[index.id].items.push('Bread');
-                vm.chcklst[index.id].items.push('Eggs');
-
-
+                vm.currentIndex = vm.chcklst[vm.chcklst.indexOf(index)];
+                if (angular.isUndefined(vm.currentIndex.items) || vm.currentIndex.items.length <= 0) {
+                    toastr.warning(vm.currentIndex.name + " does not contain any items.");
+                }
+                vm.showItemsTable = true;
             };
 
-        });
+            /**
+             * This function will create a new checklist
+             */
+            vm.createNewChcklst = function (newChcklst) {
+                toastr.clear();
+                $log.debug("Creating tasklist:");
+                $log.debug(newChcklst);
+                URLFactory.createNewTaskList(newChcklst)
+                    .then(function (response) {
+                        $log.debug("Successfully created checklist");
+                        $log.debug(response);
+                        getAllChecklists();
+                    }, function errorCallback(response) {
+                        $log.debug(response);
+                        if (response.data.status === 500) {
+                            toastr.warning("Checklist already exists.");
+                        }
+                    });
+                vm.newChcklst = {};
+            }; // End createNewChcklst
+
+
+
+
+            /**
+             * This function will call the createNewChcklst function and will create a new checklist when
+             * enter is pressed in the input box
+             */
+            vm.pressEnter = function (event) {
+                if (event.keyCode === 13) {
+                    vm.createNewChcklst(vm.newChcklst);
+                }
+            }; // End pressEnter
+
+            /*
+             * This function will update the provided task list name
+             */
+            vm.updateTaskListName = function (taskList) {
+                URLFactory.updateTaskList(taskList)
+                    .then(function (response) {
+                        $log.debug(response);
+                        toastr.success("Updated list");
+                        getAllChecklists();
+                        vm.showItems(taskList);
+                    }, function (response) {
+                        $log.debug(response);
+                    });
+            };
+
+            vm.editTask = function () {
+                vm.showEditTask = true;
+                vm.tempTaskList = vm.currentIndex.name;
+            };
+
+            vm.deleteTaskList = function (taskList) {
+                URLFactory.deleteTaskList(taskList)
+                    .then(function (response) {
+                        $log.debug(response);
+                        vm.showItemsTable = false;
+                        getAllChecklists();
+                    }, function (response) {
+                        $log.debug(response);
+                    });
+            };
+
+        }); // End MainController
 })();
